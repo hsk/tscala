@@ -6,7 +6,7 @@ import java.io.FileInputStream
 import reader.parse
 import compiler._
 
-class test02exec {
+class test11env {
 
   @Test
   def test001 {

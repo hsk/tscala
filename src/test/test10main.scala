@@ -1,4 +1,4 @@
-package test.compiler
+package test
 
 import org.junit._
 import Assert._
@@ -6,7 +6,7 @@ import java.io.FileInputStream
 import reader.parse
 import compiler._
 
-class test05memAlloc {
+class test10main {
 
   @Test
   def test001 {

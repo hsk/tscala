@@ -9,21 +9,6 @@ import compiler._
 class CompilerTest {
 
   @Test
-  def test_asm {
-    asm.open("a.txt")
-    asm("test")
-    asm.close()
-    Assert.assertEquals("test\n", exec.readAll(new FileInputStream("a.txt")))
-  }
-
-  @Test
-  def test_genid {
-    assertEquals("a1", genid("a"))
-    assertEquals("b2", genid("b"))
-    assertEquals("a3", genid("a"))
-  }
-
-  @Test
   def test_emit {
     // 1を出力するプログラム
     val prg = List(
@@ -144,7 +129,10 @@ class CompilerTest {
         ERet(EAdd(EStr("a"), EAdd(EStr("b"), EStr("c")))))))
     val s = setmem(prg)
     println("s=" + s)
-    assert(s + "" == "List(EFundef(_main,List(),List(EMov(EInt(30),EStr(s_3)), EMov(EInt(2),EStr(s_2)), EMov(EInt(1),EStr(s_1)), ECall(_printInt,List(ECall(_add,List(EStr(s_1), EStr(s_2), EStr(s_3))))))), EFundef(_add,List(a, b, c),List(ERet(EAdd(EStr(a),EAdd(EStr(b),EStr(c)))))))")
+    assertEquals(
+        "List(EFundef(_main,List(),List(EMov(EInt(30),EStr(s_3)), EMov(EInt(2),EStr(s_2)), EMov(EInt(1),EStr(s_1)), ECall(_printInt,List(ECall(_add,List(EStr(s_1), EStr(s_2), EStr(s_3))))))), EFundef(_add,List(a, b, c),List(ERet(EAdd(EStr(a),EAdd(EStr(b),EStr(c)))))))",
+        s+""
+    )
     val e = expand(s)
     val m = memAlloc(e)
     emit("e.s", m)

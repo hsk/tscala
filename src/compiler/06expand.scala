@@ -72,29 +72,4 @@ object expand {
       (MRet(id)::l2, id)
     case EStr(id) => (l, id)
   }
-
-  def main(argv:Array[String]) {
-    val prg = List(
-      EFundef("_main", List(), List(
-        EMov(EInt(10), EStr("a")),
-        EMov(EInt(1), EStr("b")),
-        EMov(ECall("_printInt", List(ECall("_eq",List(EStr("a"), EStr("b"))))),EStr("d")),
-        ERet(EStr("d"))
-      )),
-      EFundef("_eq", List("a","b"), List(
-        EIf(EEq(EStr("a"), EStr("b")), List(ERet(EInt(100))), List(ERet(EInt(200))))
-      ))
-    )
-    val p = expand(prg)
-    println("p="+p)
-    /*
-    val m = memAlloc(p)
-    println("m="+m)
-    emit("m.s", m)
-    exec("gcc -m64 -o m m.s lib.c") match {
-      case 0 => exec("./m")
-      case _ =>
-    }*/
-  }
-
 }

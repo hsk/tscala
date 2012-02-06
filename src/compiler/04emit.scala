@@ -129,26 +129,4 @@ object emit {
       case (_, List()) =>
     }
   }
-
-  def main(argv: Array[String]) {
-    val prgs = List[Fundef](
-      Fundef("_printInt", List[X86_64](
-        Ascii("LC0", "%d\\12"),
-        Subq("$16", "%rsp"),
-        Movl("%edi", "-4(%rbp)"),
-        Movl("-4(%rbp)", "%esi"),
-        Leaq("LC0", "%rdi"),
-        Movl("$0", "%eax"),
-        Call("_printf", List()))),
-      Fundef("_main", List[X86_64](
-        Subq("$16", "%rsp"),
-        Movl("$333", "-4(%rbp)"),
-        Call("_printInt", List("-4(%rbp)")))))
-
-    emit("test3.s", prgs)
-    exec("gcc -m64 -o test3 test3.s") match {
-      case (0, a, b) => val (a,b,c) = exec("./test3"); print(b)
-      case (e, a, b) => print(a); System.err.print(b); System.exit(e);
-    }
-  }
 }

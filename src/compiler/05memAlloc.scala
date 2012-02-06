@@ -43,32 +43,5 @@ object memAlloc {
     case a:String => counter -= size; val n = counter + "(%rbp)"; m = m + (a -> n); n
     case a => a
   }
-
-
-  def main(args:Array[String]) {
-    val prgs = List(
-      MFundef("_printInt",List(
-        MAscii("LC0", "%d\\12"),
-        MMovl("%edi", "a"),
-        MMovl("a", "%esi"),
-        MLeaq("LC0", "%rdi"),
-        MMovl("$0", "%eax"),
-        MCall("_printf",List())
-      )),
-      MFundef("_main",List(
-        MMovl("$333", "a"),
-        MCall("_printInt",List("a"))
-      ))
-    )
-    val prgm = memAlloc(prgs)
-    println("prgm="+prgm)
-    emit("test3.s",prgm)
-    exec("gcc -m64 -o test3 test3.s") match {
-      case (0, _, _) => exec("./test3")
-      case (e, a, b) => print(a); System.err.print(b); System.exit(e)
-    }
-
-  }
-  
 }
 

@@ -9,6 +9,8 @@ import compiler._
 class test10main {
 
   @Test
-  def test001 {
+  def test_string2 {
+    main.main(Array[String]("src/lib/test.dia"))
   }
+
 }

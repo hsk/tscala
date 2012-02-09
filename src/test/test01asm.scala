@@ -3,7 +3,8 @@ package test
 import org.junit.Assert._;
 import org.junit.Test;
 import java.io.FileInputStream
-import compiler._
+import compiler.asm
+import compiler.exec
 
 class test01asm {
 
@@ -14,5 +15,4 @@ class test01asm {
     asm.close()
     assertEquals("test\n", exec.readAll(new FileInputStream("a.txt")))
 	}
-
 }

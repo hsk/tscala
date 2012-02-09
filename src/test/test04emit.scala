@@ -31,4 +31,16 @@ class test04emit {
       case _ => fail("test_emit fail")
     }
   }
+  
+  @Test
+  def test_emit_string {
+    // 1を出力するプログラム
+    emit("test_emit.s", List(
+      Fundef("_main", List(
+        Movl("$1", "%edi"), // スタックに1をつむ
+        Ascii("lb1", "test"), // スタックに1をつむ
+        Call("_printInt", List()) // printInt関数を呼び出す
+        ))))
+  }
+  
 }

@@ -9,7 +9,7 @@ object st2ast {
 
   def f(fn:Any):EFundef = fn match {
     case ('def,((Symbol(n),Symbol("("),a,Symbol(")")),Symbol("{"),b, Symbol("}"))) =>
-      EFundef("_"+n, params(a), bodys(b))
+      EFundef("_"+n, TUnit(), params(a), bodys(b))
   }
 
   def params(e:Any):List[String] = e match {
@@ -44,4 +44,3 @@ object st2ast {
       }
   }
 }
-

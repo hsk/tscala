@@ -23,28 +23,28 @@ class test09parse {
     val ast = st2ast(st)
     // 結果
     assertEquals(
-      List(EFundef("_main", List(), List(EMov(EAscii("abc", "str_1"), EStr("a")), ECall("_printInt", List(EInt(1)))))),
+      List(EFundef("_main", TUnit(), List(), List(EMov(EAscii("abc", "str_1"), EStr("a")), ECall("_printInt", List(EInt(1)))))),
       ast)
 
     // 定数をメモリに割り当ててしまう
     val s = setmem(ast)
     // 結果
     assertEquals(
-      "List(EFundef(_main,List(),List(EMov(EInt(1),EStr(s_2)), EMov(EAscii(abc,str_1),EStr(a)), ECall(_printInt,List(EStr(s_2))))))",
+      "List(EFundef(_main,TUnit(),List(),List(EMov(EInt(1),EStr(s_2)), EMov(EAscii(abc,str_1),EStr(a)), ECall(_printInt,List(EStr(s_2))))))",
       s + "")
 
     // 複雑な式をフラットに展開
     val e = expand(s)
     // 結果
     assertEquals(
-      "List(MFundef(_main,List(MMovl($1,s_2), MAscii(abc,str_1), MLeaq(str_1,a), MCall(_printInt,List(s_2)))))",
+      "List(MFundef(_main,TUnit(),List(MMovl($1,s_2), MAscii(abc,str_1), MLeaq(str_1,a), MCall(_printInt,List(s_2)))))",
       e + "")
 
     // メモリ割当て
     val m = memAlloc(e)
     // 結果
     assertEquals(
-      "List(Fundef(_main,List(Subq($16,%rsp), Movl($1,-4(%rbp)), Ascii(abc,str_1), Leaq(str_1,-12(%rbp)), Call(_printInt,List(-4(%rbp))))))",
+      "List(Fundef(_main,TUnit(),List(Subq($16,%rsp), Movl($1,-4(%rbp)), Ascii(abc,str_1), Leaq(str_1,-12(%rbp)), Call(_printInt,List(-4(%rbp))))))",
       m + "")
 
     // コード出力

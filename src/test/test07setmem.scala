@@ -12,14 +12,14 @@ class test07setmem {
   def test_setmem {
     genid.counter = 0
     val prg = List(
-      EFundef("_main", List(), List(
+      EFundef("_main", TUnit(), List(), List(
         ECall("_printInt", List(ECall("_add", List(EInt(1), EInt(2), EInt(30))))))),
-      EFundef("_add", List("a", "b", "c"), List(
+      EFundef("_add", TUnit(), List("a", "b", "c"), List(
         ERet(EAdd(EStr("a"), EAdd(EStr("b"), EStr("c")))))))
     val s = setmem(prg)
     println("s=" + s)
     assertEquals(
-        "List(EFundef(_main,List(),List(EMov(EInt(30),EStr(s_3)), EMov(EInt(2),EStr(s_2)), EMov(EInt(1),EStr(s_1)), ECall(_printInt,List(ECall(_add,List(EStr(s_1), EStr(s_2), EStr(s_3))))))), EFundef(_add,List(a, b, c),List(ERet(EAdd(EStr(a),EAdd(EStr(b),EStr(c)))))))",
+        "List(EFundef(_main,TUnit(),List(),List(EMov(EInt(30),EStr(s_3)), EMov(EInt(2),EStr(s_2)), EMov(EInt(1),EStr(s_1)), ECall(_printInt,List(ECall(_add,List(EStr(s_1), EStr(s_2), EStr(s_3))))))), EFundef(_add,TUnit(),List(a, b, c),List(ERet(EAdd(EStr(a),EAdd(EStr(b),EStr(c)))))))",
         s+""
     )
     val e = expand(s)

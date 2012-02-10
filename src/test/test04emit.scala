@@ -13,7 +13,7 @@ class test04emit {
   def test_emit {
     // 1を出力するプログラム
     val prg = List(
-      Fundef("_main", List(
+      Fundef("_main", TUnit(), List(
         Movl("$1", "%edi"), // スタックに1をつむ
         Call("_printInt", List()) // printInt関数を呼び出す
         )))
@@ -36,7 +36,7 @@ class test04emit {
   def test_emit_string {
     // 1を出力するプログラム
     emit("test_emit.s", List(
-      Fundef("_main", List(
+      Fundef("_main", TUnit(), List(
         Movl("$1", "%edi"), // スタックに1をつむ
         Ascii("lb1", "test"), // スタックに1をつむ
         Call("_printInt", List()) // printInt関数を呼び出す

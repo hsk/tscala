@@ -4,10 +4,10 @@ object setmem {
   var ls:List[EAst] = List()
 
   def apply(e:List[EFundef]):List[EFundef] = e.map {
-    case EFundef(n:String, a:List[String], b:List[EAst]) =>
+    case EFundef(n:String, t:TType, a:List[String], b:List[EAst]) =>
       ls = List()
       val b2 = b.map(f)
-      EFundef(n, a, ls:::b2)
+      EFundef(n, t, a, ls:::b2)
   }
 
   def f(e:EAst):EAst = e match {

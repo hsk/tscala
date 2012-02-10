@@ -13,7 +13,7 @@ class test05memAlloc {
 
     // プログラム
     val prgs = List(
-      MFundef("_main", List(
+      MFundef("_main", TUnit(), List(
         MMovl("$5", "a"),
         MCall("_printInt", List("a"))))
     )
@@ -24,7 +24,7 @@ class test05memAlloc {
     // 結果
     assertEquals(l,
       List(
-        Fundef("_main",
+        Fundef("_main", TUnit(),
           List(
               Subq("$16", "%rsp"),
               Movl("$5", "-4(%rbp)"),

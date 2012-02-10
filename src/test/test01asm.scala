@@ -8,8 +8,7 @@ import compiler.exec
 
 class test01asm {
 
-	@Test
-	def テキストファイルが正しく出力される確認 {
+	@Test def test_asm {
     asm.open("a.txt")
     asm("test")
     asm.close()

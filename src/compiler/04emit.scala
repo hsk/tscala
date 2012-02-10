@@ -5,7 +5,7 @@
 
 package compiler
 
-abstract class X86_64
+sealed abstract class X86_64
 case class Movl(a: String, b: String) extends X86_64
 case class Subq(a: String, b: String) extends X86_64
 case class Addl(a: String, b: String, c: String) extends X86_64
@@ -15,7 +15,7 @@ case class Ret(a: String) extends X86_64
 case class Ifeq(a: String, b: String, c: List[X86_64], d: List[X86_64]) extends X86_64
 case class Ascii(a: String, b: String) extends X86_64
 case class Leaq(a: String, b: String) extends X86_64
-case class Fundef(name: String, body: List[X86_64])
+case class Fundef(name:String, typ:TType, body: List[X86_64])
 
 object emit {
 
@@ -31,7 +31,7 @@ object emit {
 
     // リストをループして処理
     ls.foreach {
-      case Fundef(name: String, body: List[X86_64]) =>
+      case Fundef(name:String,typ:TType, body: List[X86_64]) =>
         // 文字列出力
         asm(".cstring")
         // 文字列出力関数

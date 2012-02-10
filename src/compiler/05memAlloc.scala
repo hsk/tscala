@@ -10,17 +10,17 @@ case class MRet(a:String) extends MX86_64
 case class MIfeq(a:String,b:String, c:List[Any], d:List[Any]) extends MX86_64
 case class MAscii(a:String,b:String) extends MX86_64
 
-case class MFundef(a:String, b:List[MX86_64])
+case class MFundef(a:String, typ:TType, b:List[MX86_64])
 
 object memAlloc {
   var m:Map[String, String] = null
   def apply(ls:List[MFundef]):List[Fundef] = ls.map {
-    case MFundef(n, ls)=>
+    case MFundef(n, t, ls)=>
       counter = 0
       m = Map()
       val ll = ls.map(g)
       val size = ((15 - counter) / 16) * 16
-      Fundef(n, Subq("$" + size, "%rsp")::ll)
+      Fundef(n, t, Subq("$" + size, "%rsp")::ll)
   }
 
   def g(l:MX86_64):X86_64 = l match {

@@ -1,5 +1,14 @@
 package compiler
 
+sealed abstract class TType
+case class TUnit extends TType
+case class TBool extends TType
+case class TInt extends TType
+case class TFloat extends TType
+case class TFun(a:List[TType], b:TType) extends TType // arguments are uncurried
+case class TTuple(a:List[TType]) extends TType
+case class TArray(a:TType) extends TType
+case class TVar(var a:Option[TType]) extends TType
 
 abstract class EAst
 case class EMov(a:EAst, b:EAst) extends EAst
@@ -14,16 +23,16 @@ case class ERet(a:EAst) extends EAst
 case class EEq(a:EAst,b:EAst) extends EAst
 case class EBlock(a:List[EAst]) extends EAst
 
-case class EFundef(a:String, b:List[String], c:List[EAst])
+case class EFundef(a:String, t:TType, b:List[String], c:List[EAst])
 
 object expand {
 
   def apply(p:List[EFundef]):List[MFundef] = {
     p.map {
-      case EFundef(n, a, bs:List[EAst]) =>
+      case EFundef(n, t, a, bs:List[EAst]) =>
         var l = argv(a, regs)
         var (l2, id) = bs.foldLeft(l, "") { case ((l, id), b) => f(l, b) }
-        MFundef(n, l2.reverse)
+        MFundef(n, t, l2.reverse)
     }
   }
 

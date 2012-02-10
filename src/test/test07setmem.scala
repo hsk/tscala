@@ -10,6 +10,7 @@ class test07setmem {
 
   @Test
   def test_setmem {
+    genid.counter = 0
     val prg = List(
       EFundef("_main", List(), List(
         ECall("_printInt", List(ECall("_add", List(EInt(1), EInt(2), EInt(30))))))),

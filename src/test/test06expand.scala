@@ -10,6 +10,8 @@ class test06expand {
 
   @Test
   def test_expand {
+    genid.counter = 0
+    
     // 展開前プログラム
     val prg = List(
       EFundef("_main", List(), List(

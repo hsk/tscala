@@ -9,6 +9,7 @@ import compiler._
 class test09parse {
 
   @Test def test_string {
+    genid.counter = 0
     val prg = """def main(){ a="abc"; printInt(1)} """
 
     // パース
@@ -412,4 +413,181 @@ class test09parse {
         parse("e else f")
     )
   }
+  @Test def test_paren() {
+    // Symbol("(") -> ("p", Symbol(")")),
+    assertEquals(
+        (Symbol("("),'a,Symbol(")")),
+        parse("(a)")
+    )
+  }
+  @Test def test_array() {
+    // Symbol("[") -> ("p", Symbol("]")),
+    assertEquals(
+        (Symbol("["),'a,Symbol("]")),
+        parse("[a]")
+    )
+  }
+  @Test def test_brace() {
+    // Symbol("{") -> ("p", Symbol("}")),
+    assertEquals(
+        (Symbol("{"),'a,Symbol("}")),
+        parse("{a}")
+    )
+  }
+  @Test def test_new() {
+    // 'new -> ("l", 160),
+    assertEquals(
+        ('new, ('new,'a)),
+        parse("new new a")
+    )
+  }
+  @Test def test_preadd() {
+    // '++ -> ("l", 160),
+    assertEquals(
+        ('++, ('++,'a)),
+        parse("++ ++ a")
+    )
+  }
+  @Test def test_predec() {
+    // '-- -> ("l", 160),
+    assertEquals(
+        ('--, ('--,'a)),
+        parse("-- --a")
+    )
+  }
+  @Test def test_plus() {
+    // '+ -> ("l", 160),
+    assertEquals(
+        ('+, ('+,'a)),
+        parse("+ + a")
+    )
+  }
+  @Test def test_pointer() {
+    // '* -> ("l", 160),
+    assertEquals(
+        ('*, ('*,'a)),
+        parse("**a")
+    )
+  }
+  @Test def test_address() {
+    // '& -> ("l", 160),
+    assertEquals(
+        ('&, ('&,'a)),
+        parse("& &a")
+    )
+  }
+  @Test def test_minus() {
+    // '- -> ("l", 160),
+    assertEquals(
+        ('-, ('-,'a)),
+        parse("- - a")
+    )
+  }
+  @Test def test_xnot() {
+    // '~ -> ("l", 160),
+    assertEquals(
+        ('~, ('~,'a)),
+        parse("~ ~a")
+    )
+  }
+  @Test def test_not() {
+    // '! -> ("l", 160),
+    assertEquals(
+        ('!, ('!,'a)),
+        parse("! !a")
+    )
+  }
+  @Test def test_delete() {
+    // 'delete -> ("l", 160),
+    assertEquals(
+        ('delete, ('delete,'a)),
+        parse("delete delete a")
+    )
+  }
+  @Test def test_typeof() {
+    // 'typeof -> ("l", 160),
+    assertEquals(
+        ('typeof, ('typeof,'a)),
+        parse("typeof typeof a")
+    )
+  }
+  @Test def test_break() {
+    // 'break ->("l",160),
+    assertEquals(
+        ('break, ('break,'a)),
+        parse("break break a")
+    )
+  }
+  @Test def test_continue() {
+    // 'continue ->("l",160),
+    assertEquals(
+        ('continue, ('continue,'a)),
+        parse("continue continue a")
+    )
+  }
+  @Test def test_import() {
+    // 'import ->("l",160),
+    assertEquals(
+        ('import, ('import,'a)),
+        parse("import import a")
+    )
+  }
+  @Test def test_def() {
+    // 'def -> ("l", 20),
+    assertEquals(
+        ('def, ('def,'a)),
+        parse("def def a")
+    )
+  }
+  @Test def test_return() {
+    // 'return ->("l",0),
+    assertEquals(
+        ('return, ('return,'a)),
+        parse("return return a")
+    )
+  }
+  @Test def test_mac() {
+    // 'mac->("st",Symbol("("),Symbol(")"),0),
+    assertEquals(
+        ('mac, Symbol("("),'a,Symbol(")"), 'b),
+        parse("mac(a)b")
+    )
+  }
+  @Test def test_if() {
+    // 'if ->("st",Symbol("("),Symbol(")"),0),
+    assertEquals(
+        ('if, Symbol("("),'a,Symbol(")"), 'b),
+        parse("if(a)b")
+    )
+  }
+  @Test def test_for() {
+    // 'for ->("st",Symbol("("),Symbol(")"),0),
+    assertEquals(
+        ('for, Symbol("("),'a,Symbol(")"), 'b),
+        parse("for(a)b")
+    )
+  }
+  @Test def test_while() {
+    // 'while ->("st",Symbol("("),Symbol(")"),0),
+    assertEquals(
+        ('while, Symbol("("),'a,Symbol(")"), 'b),
+        parse("while(a)b")
+    )
+  }
+  @Test def test_do() {
+    // 'do ->("st",Symbol("{"),Symbol("}"),0)
+    assertEquals(
+        ('do, Symbol("{"),'a,Symbol("}"), ('while,Symbol("("),'b,Symbol(")"), Symbol(";"))),
+        parse("do{a}while(b);")
+    )
+  }
+
+  // TODO if文周りのテスト
+  // TODO 優先順位テスト
+  // TODO import周りのテスト
+  // TODO セミコロン周りのテスト
+  // TODO 改行とカッコのテスト
+  // TODO 前置演算子のテスト
+  
+  // TODO 後置演算子のテストは済
 }

@@ -7,9 +7,24 @@ object st2ast {
     case a => List(f(a))
   }
 
+  def t(a:Any):TType = a match {
+    case 'Unit => TUnit()
+    case 'Bool => TBool()
+    case 'Int => TInt()
+    case 'Float => TFloat()
+    case ('Fun, a, b) => TFun(List(t(a)), t(b))
+    case (Symbol("("),a,Symbol(")")) => TTuple(List(t(a)))
+    case ('Array,Symbol("["),a,Symbol("]")) => TArray(t(a))
+    case ('Var,a) => TVar(Some(t(a)))
+  }
   def f(fn:Any):EFundef = fn match {
     case ('def,((Symbol(n),Symbol("("),a,Symbol(")")),Symbol("{"),b, Symbol("}"))) =>
       EFundef("_"+n, TUnit(), params(a), bodys(b))
+    case ('def,
+        ((
+            (Symbol(n),Symbol("("),a,Symbol(")")),':,typ),'=,b)) =>
+      EFundef("_"+n, t(typ), params(a), bodys(b))
+      
   }
 
   def params(e:Any):List[String] = e match {

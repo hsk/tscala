@@ -3,6 +3,9 @@ package script
 import reader._
 import scala.collection.mutable.{HashMap,Stack}
 
+case class BreakException(a:Any) extends Exception
+case class ContinueException(a:Any) extends Exception
+
 object eval {
 
   def apply(s:String):Any = try {
@@ -43,19 +46,66 @@ object eval {
       case (a,Symbol(","),b) => c.add(a.asInstanceOf[AnyRef].getClass()); getTypes(b, c)
       case a => c.add(a.asInstanceOf[AnyRef].getClass()); c
     }
-    def ev(a:Any, b:Any,e:Env, f:(Any,Any)=>Any):Any = (eval(a,e),eval(b,e)) match {
-      case (a:Int, b) => f(a,b.asInstanceOf[Int])
-      case (a, b:Int) => f(a.asInstanceOf[Int],b)
-      case (a:Float, b) => f(a,b.asInstanceOf[Float])
-      case (a, b:Float) => f(a.asInstanceOf[Float],b)
-      case (a:Double, b) => f(a,b.asInstanceOf[Double])
-      case (a, b:Double) => f(a.asInstanceOf[Double],b)
-      case (a:AnyRef,b) => f(a.toString(),b.toString())
-      case (a,b:AnyRef) => f(a.toString(),b.toString())
-      case (a,b) => f(a.asInstanceOf[Int], b.asInstanceOf[Int])
+    def nummable(a:Any):Boolean = a match {
+      case a:Byte => true
+      case a:Char => true
+      case a:Short => true
+      case a:Int => true
+      case a:Long => true
+      case a:Float => true
+      case a:Double => true
+      case _ => false
+    }
+    def toDouble(a:Any):Double = a match {
+      case a:Byte => a
+      case a:Char => a
+      case a:Short => a
+      case a:Int => a
+      case a:Long => a
+      case a:Float => a
+      case a:Double => a
+    }
+    def toFloat(a:Any):Float = a match {
+      case a:Byte => a
+      case a:Char => a
+      case a:Short => a
+      case a:Int => a
+      case a:Long => a
+      case a:Float => a
+    }
+    def toLong(a:Any):Long = a match {
+      case a:Byte => a
+      case a:Char => a
+      case a:Short => a
+      case a:Int => a
+      case a:Long => a
+    }
+    def toInt(a:Any):Int = a match {
+      case a:Byte => a
+      case a:Char => a
+      case a:Short => a
+      case a:Int => a
+    }
+    def ev(a:Any, b:Any,e:Env, f:(Any,Any)=>Any):Any = {
+      val a1 = eval(a,e)
+      val b1 = eval(b,e)
+      if(nummable(a1) && nummable(b1)) {
+        (a1,b1) match {
+          case (a:Double, b) => f(a,toDouble(b))
+          case (a, b:Double) => f(toDouble(a),b)
+          case (a:Float, b) => f(a,toFloat(b))
+          case (a, b:Float) => f(toFloat(a),b)
+          case (a:Long, b) => f(a,toLong(b))
+          case (a, b:Long) => f(toLong(a),b)
+          case (a:Int, b) => f(a,toInt(b))
+          case (a, b:Int) => f(toInt(a),b)
+          case (a,b) => f(a.toString(),b.toString())
+        }
+      } else {
+        f(a1.toString(),b1.toString())
+      }
     }
 
-    //println("eval("+a+")");
     a match {
       case (('new,(a,Symbol("("),b,Symbol(")")))) =>
         def className(a:Any):String = a match {
@@ -206,16 +256,34 @@ object eval {
       case (Symbol("{"),a,Symbol("}")) => eval(a, e)
       case (a,Symbol(","),b) => (eval(a, e),Symbol(","),eval(b,e))
       case (Symbol("["),a,Symbol("]")) => (Symbol("["), eval(a, e), Symbol("]"))
-      case (a, Symbol(";"))  => eval(a, e)
       case ('if,Symbol("("),a,Symbol(")"),(b,'else,c)) => if(eval(a,e) != 0) eval(b, e) else eval(c, e)
       case ('if,Symbol("("),a,Symbol(")"), b) => if(eval(a, e) != 0) eval(b, e) else 0
       case ('def,((Symbol("("),a,Symbol(")")),Symbol("{"),b,Symbol("}"))) => val rc = Fun(a,b,e); rc
       case ('def,((name,Symbol("("),a,Symbol(")")),Symbol("{"),b,Symbol("}"))) => val f = Fun(a,b,e); e += (name -> f); f
+      case ('while,Symbol("("),a,Symbol(")"),b) =>
+        var rc:Any = -1
+        try {
+          while(eval(a, e)!=0) {
+            try {
+              rc = eval(b, e)
+            } catch {
+              case ContinueException(_) =>
+            }
+          }
+        } catch {
+          case BreakException(a) => rc
+        }
+        rc
+      case ('break, a) => throw BreakException(a)
+      case ('continue, a) => throw ContinueException(a)
+      case (a, Symbol(";"))  => eval(a, e)
       case a:Fun => a
       case a:Symbol => e(a)
       case Sym(a) => Symbol(a)
       case a:Int => a
       case a:String => a
+      case a:Double => a
+      case a:Float => a
       case a => throw new Error("runtime error " + a)
     }}
 

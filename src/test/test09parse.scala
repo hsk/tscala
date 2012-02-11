@@ -582,6 +582,32 @@ class test09parse {
     )
   }
 
+  @Test def test_aaa {
+    val prg = "def a():Int = 1";
+    val rc = parse(prg)
+    println(rc)
+    println(st2ast(rc))
+  }
+  
+  @Test def test_double1 {
+    val prg = "1.1"
+    val rc = parse(prg)
+    assertEquals(1.1D, rc)
+    assertEquals(true, rc.isInstanceOf[Double])
+  }
+  @Test def test_double2 {
+    val prg = "1.1D"
+    val rc = parse(prg)
+    assertEquals(1.1D, rc)
+    assertEquals(true, rc.isInstanceOf[Double])
+  }
+  @Test def test_float {
+    val prg = "1.1F"
+    val rc = parse(prg)
+    assertEquals(1.1F, rc)
+    assertEquals(true, rc.isInstanceOf[Float])
+  }
+
   // TODO if文周りのテスト
   // TODO 優先順位テスト
   // TODO import周りのテスト

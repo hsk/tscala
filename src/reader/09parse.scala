@@ -82,6 +82,8 @@ object parse {
   )
 
   val comments = """(?s)^[\t\r\n ]*(#[^\r\n]*)(.*$)""".r
+  val floats = """(?s)^[\t\r\n ]*([0-9]+\.[0-9]+F)(.*$)""".r
+  val doubles = """(?s)^[\t\r\n ]*([0-9]+\.[0-9]+D?)(.*$)""".r
   val nums = """(?s)^[\t\r\n ]*([0-9]+)(.*$)""".r
   val ns = """(?s)^[\t\r\n ]*([a-zA-Z_][a-zA-Z_0-9]*|\*=|[\(\)\{\}\[\],;*]|[+\-/%&|\^~=!?:<>.]+|)(.*$)""".r
   val sym = """(?s)^[\t\r\n ]*'([^\(\)\[\]\{\}\s\;\:,]+)(.*$)""".r
@@ -96,6 +98,8 @@ object parse {
       ptoken = token
       src match {
         case comments(a,b) => src = b; lex()
+        case floats(a,b) => token = a.toFloat; src = b
+        case doubles(a,b) => token = a.toDouble; src = b
         case nums(a,b) => token = a.toInt; src = b
         case sym(a,b) => token = Sym(a); src = b
         case strr(a,b,c) =>

@@ -42,32 +42,26 @@ class test12eval {
     val prg = "b = 0; a = 0; lp:while(a<10){while(true){a++; if(a%2==0)continue lp; b++;}} b"
     assertEquals(5,eval(prg))
   }
-  // TODO switch
   @Test def test_switch {
     val prg = "a=2; switch(a){case(1){a=11}case(2){a=22}} a"
     assertEquals(22, eval(prg))
   }
-  // TODO for
   @Test def test_for {
     val prg = "a=1;for(i=0;i<10;i++){a++;} a"
     assertEquals(11, eval(prg))
   }
-  // TODO for break;
   @Test def test_for_break {
-    val prg = "a=1;for(i=0;i<10;i++){a++;if(i>5)break;} a"
+    val prg = "a=0;for(i=0;i<10;i++){if(i>5)break;a++;} a"
     assertEquals(6, eval(prg))
   }
-  // TODO for continue;
   @Test def test_for_continue {
     val prg = "a=1;for(i=0;i<10;i++){if(i %2==0)continue;a++;} a"
     assertEquals(6, eval(prg))
   }
-  // TODO for break;
   @Test def test_for_break_name {
-    val prg = "a=1;lp:for(j=0;j<10;j++){for(i=0;i<10;i++){a++;if(i>5)break lp;}} a"
+    val prg = "a=0;lp:for(j=0;j<10;j++){for(i=0;i<10;i++){if(i>5)break lp;a++;}} a"
     assertEquals(6, eval(prg))
   }
-  // TODO for continue;
   @Test def test_for_continue_name {
     val prg = "a=1;lp:for(i=0;i<10;i++){for(j=0;j<1;j++){if(i %2==0)continue lp;a++;}} a"
     assertEquals(6, eval(prg))

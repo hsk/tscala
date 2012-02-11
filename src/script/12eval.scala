@@ -105,7 +105,6 @@ object eval {
         f(a1.toString(),b1.toString())
       }
     }
-
     a match {
       case (('new,(a,Symbol("("),b,Symbol(")")))) =>
         def className(a:Any):String = a match {
@@ -196,6 +195,7 @@ object eval {
       case ('~,a)   => ~(eval(a, e).asInstanceOf[Int])
       case ('!,a)   => if(eval(a, e)==0) -1 else 0
 
+      //case (('switch, Symbol("("),a,Symbol(")")),Symbol("{"),b,Symbol("}")) => b
       case (a,'@, b) => eval(a, e); eval(b, e)
 //      case ('print,Symbol("("), a,Symbol(")")) => val r = eval(a, e); println(r);r
       case ('eval,Symbol("("),b,Symbol(")")) => eval(eval(macro.expand(b,e),e),e)
@@ -246,7 +246,24 @@ object eval {
       case ((Symbol("("),b,Symbol(")")),Symbol("{"),c,Symbol("}")) =>
         Fun(b,c,e)
       case ((a,Symbol("("),b,Symbol(")")),Symbol("{"),c,Symbol("}")) =>
-        eval((a,Symbol("("),append(b,Symbol(","),Fun('void,c,e)),Symbol(")")), e)
+        a match {
+          case 'switch=> 
+            val n = eval(b, e)
+            def cases (n:Any, x:Any):Any = x match {
+              case (a,'@, b) => val rc = cases(n,a); if(rc!=null) rc else cases(n,b)
+              case (('case,Symbol("("),a,Symbol(")")),Symbol("{"),b,Symbol("}")) =>
+                if (n==eval(a,e)) b else null
+              case _ => null
+            }
+            val c2 = cases(n, c)
+            if(c2==null) {
+              null
+            } else {
+              eval(c2, e)
+            }
+          case _ =>
+            eval((a,Symbol("("),append(b,Symbol(","),Fun('void,c,e)),Symbol(")")), e)
+        }
       case ('q,Symbol("{"),b,Symbol("}")) => b
       case ('qq,Symbol("{"),b,Symbol("}")) => macro.qq(b, e)
       case ('qqq,Symbol("{"),b,Symbol("}")) => macro.qq(eval(b,e), e)
@@ -267,16 +284,64 @@ object eval {
             try {
               rc = eval(b, e)
             } catch {
-              case ContinueException(_) =>
+              case e@ContinueException(a) => if(a!=Symbol(";")&&a!='void) throw e
             }
           }
         } catch {
-          case BreakException(a) => rc
+          case e@BreakException(a) => if(a==Symbol(";")||a=='void) rc else throw e
         }
         rc
+     case (l,':,('while,Symbol("("),a,Symbol(")"),b)) =>
+        var rc:Any = -1
+        try {
+          while(eval(a, e)!=0) {
+            try {
+              rc = eval(b, e)
+            } catch {
+              case e@ContinueException(a) => if(a!=l) throw e
+            }
+          }
+        } catch {
+          case e@BreakException(a) => if(a==l) rc else throw e
+        }
+        rc
+      case ('for,Symbol("("),((a1,Symbol(";")),'@,((a2,Symbol(";")),'@, a3)),Symbol(")"),b) =>
+        var rc:Any = -1
+        try {
+          eval(a1, e)
+          while(eval(a2, e)!=0) {
+            try {
+              rc = eval(b, e)
+            } catch {
+              case e@ContinueException(a) => if(a!=Symbol(";")&&a!='void) throw e
+            }
+            eval(a3, e)
+          }
+        } catch {
+          case e@BreakException(a) => if(a==Symbol(";")||a=='void) rc else throw e
+        }
+        rc
+      case (l,':, ('for,Symbol("("),((a1,Symbol(";")),'@,((a2,Symbol(";")),'@, a3)),Symbol(")"),b)) =>
+        var rc:Any = -1
+        try {
+          eval(a1, e)
+          while(eval(a2, e)!=0) {
+            try {
+              rc = eval(b, e)
+            } catch {
+              case e@ContinueException(a) => if(a!=l) throw e
+            }
+            eval(a3, e)
+          }
+        } catch {
+          case e@BreakException(a) => if(a==l) rc else throw e
+        }
+        rc
+      
       case ('break, a) => throw BreakException(a)
       case ('continue, a) => throw ContinueException(a)
       case (a, Symbol(";"))  => eval(a, e)
+      
       case a:Fun => a
       case a:Symbol => e(a)
       case Sym(a) => Symbol(a)

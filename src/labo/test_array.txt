@@ -1,0 +1,85 @@
+配列の実装を調べてみる
+
+配列の実装をしようと思う。
+まず、配列がバイナリレベルでどのように実装されるかを知らなくてはならない。
+そこで、配列を用いるプログラムをC言語で書き、アセンブラに変換してアセンブラのレベルで何がおこっているかを詳しく調べる。
+
+メイン関数
+void main() {
+  int a[100];
+  a[10]=123;
+  test(a,10);
+}
+をアセンブルした結果は以下のようになる。
+
+.globl _main
+_main:
+  pushq %rbp
+  movq  %rsp, %rbp
+  subq  $400, %rsp ; intが4byteで100個で400
+  movl  $123, -360(%rbp)
+  leaq  -400(%rbp), %rdi
+  movl  $10, %esi
+  call  _test
+  leave
+  ret
+
+  pushq %rbp
+  movq  %rsp, %rbp
+  は関数のエントリ処理だベースポインタをスタックに保存したあと、ベースポインタに現在のスタックを保存する。
+  これはleave命令で元に戻す物だ。
+  次にsubqでスタックポインタを400ほどずらしている。これが配列をスタック領域に作成する命令である。
+  次に123を-360(%rbp)に転送している。これは  a[10]=123;に対応する命令だ。
+  a[10]のアドレスは-400+4*10になる。
+  次に leaq -400(%rbp), %rdi　で配列のアドレスを%rdiに入れているこれは関数呼び出しの第一引数だ。
+  次に%esiに10を入れている。これは関数呼び出しの第２引数となる。
+  call _testでテスト関数を呼び
+  あとは関数の終了処理leaveを呼んだ後、retを呼んで終了している。
+  
+別段難しい事をしていない。
+
+test関数
+
+void test(int*a, int pos) {
+  printInt(a[pos]);
+}
+
+.globl _test
+_test:
+  pushq %rbp
+  movq  %rsp, %rbp
+  subq  $16, %rsp
+  movq  %rdi, -8(%rbp)
+  movl  %esi, -12(%rbp)
+  movl  -12(%rbp), %eax
+  cltq
+  salq  $2, %rax
+  addq  -8(%rbp), %rax
+  movl  (%rax), %edi
+  call  _printInt
+  leave
+  ret
+
+まず、えっと、引数を保存する領域を16バイト取得している。
+それがsubq 16, %rsp
+で引数をメモリに保存
+  movq  %rdi, -8(%rbp)
+  movl  %esi, -12(%rbp)
+%rdiはポインタで64bit分つまり8倍と転送していて、
+%esiはint型の4バイトを転送している。
+次にeaxにサイズを格納して  movl  -12(%rbp), %eax
+cltqしてsalqしてる。これ知らない命令なので調べてみる。
+
+cltq(Convert Long To Quad)  cdqe  %eaxの符合を%raxに拡張する。(x86-64 only)
+salqは左シフト命令
+
+cltqで32ビットを64ビットに拡張して
+２だけ左シフトすることで4をかけた事にしている。これで4byte分のポインタ操作ができるってわけだな。
+  addq  -8(%rbp), %rax
+で、ポインタの値をraxに足し込む事で、ポインタの値が出来たってわけだ。
+  movl  (%rax), %edi
+でポインタ内の値を%ediに移動して
+あとはprintIntをよんでおしまい。
+
+見るだけなら簡単な処理だ。
+これをコンパイルするとなると大変だなぁっと思う訳だ。
